@@ -227,70 +227,174 @@
             });
         }
 
+        // Etiquetas legibles para campos
+        const CAMPO_LABELS = {
+            nombre: 'Nombre', seudonimo: 'Seudónimo', genero: 'Género',
+            email: 'Email', telefono: 'Teléfono',
+            pais: 'País', region: 'Región', comuna: 'Comuna',
+            direccion: 'Dirección', deptoCasaOficina: 'Depto/Casa/Oficina',
+            'tipo-banco': 'Tipo de banco', banco: 'Banco',
+            'numero-cuenta': 'N° de cuenta', 'tipo-cuenta': 'Tipo de cuenta',
+            'swift-iban': 'Swift / IBAN',
+            ambito: 'Ámbito', clase: 'Clase',
+            motivo: 'Motivo', observaciones: 'Observaciones',
+            detalleSolicitud: 'Detalle de la solicitud',
+            descripcion: 'Descripción', obra: 'Obra',
+            ambitoAfiliacion: 'Incluir ámbito en certificado',
+            claseAfiliacion: 'Incluir clase en certificado',
+            ambitosObras: 'Ámbitos de obras',
+            incluirRolObras: 'Incluir rol en certificado',
+            incluirPorcentajeObras: 'Incluir porcentaje en certificado',
+        };
+
+        const TIPO_USUARIO_LABEL = {
+            'socio-vigente': 'Socio vigente',
+            'representante-legal': 'Representante legal',
+        };
+
+        const ACCION_REQUERIDA = {
+            'actualizacion-datos-personales':   'Actualizar datos en <strong>Contactos → [socio]</strong>',
+            'actualizacion-datos-contacto':     'Actualizar datos en <strong>Contactos → [socio]</strong>',
+            'actualizacion-datos-bancarios':    'Actualizar datos bancarios en <strong>Contactos → [socio] → Datos bancarios</strong>',
+            'actualizacion-datos-autor-ambito': 'Actualizar ámbito/clase en <strong>Contactos → [socio] → Datos de autor</strong>',
+            'actualizacion-datos-autor-sociedades': 'Actualizar sociedades en <strong>Contactos → [socio] → Otras sociedades</strong>',
+            'exhibicion-obra-extranjero':       'Registrar exhibición en <strong>Proyectos → obra correspondiente → Exhibiciones</strong>',
+            'conflicto-obra':                   'Revisar y gestionar conflicto en <strong>Proyectos → obra correspondiente</strong>',
+            'certificado-afiliacion':           'Generar y enviar <strong>certificado de afiliación</strong> al socio',
+            'certificado-derechos-recibidos':   'Generar y enviar <strong>certificado de derechos recibidos</strong> al socio',
+            'certificado-obras-declaradas':     'Generar y enviar <strong>certificado de obras declaradas</strong> al socio',
+            'otro-certificado':                 'Revisar solicitud y generar <strong>certificado solicitado</strong>',
+            'desafiliacion':                    'Iniciar proceso de <strong>desafiliación</strong> y contactar al socio por correo',
+            'otro':                             'Revisar solicitud y <strong>contactar al socio</strong> para coordinar',
+        };
+
+        function renderCampo(label, valor) {
+            if (!valor || valor === '' || (Array.isArray(valor) && valor.length === 0)) return '';
+            const val = Array.isArray(valor) ? valor.join(', ') : String(valor);
+            return `<div class="detalle-item">
+                <span class="detalle-label">${label}</span>
+                <span class="detalle-valor">${val}</span>
+            </div>`;
+        }
+
         function abrirDetalle(d) {
             solicitudActual = d;
             const content = document.getElementById('detalleContent');
+            const datos   = d.datos || {};
+            const campos  = datos.campos || {};
 
-            // Construir campos del detalle
-            const datos = d.datos || {};
-            const campos = datos.campos || {};
+            // ── ENCABEZADO ────────────────────────────────────────────────────
+            let html = `
+            <div style="background:rgba(9,113,55,0.06); border:1px solid rgba(9,113,55,0.2); border-radius:0.75rem; padding:1rem 1.25rem; margin-bottom:1.25rem;">
+                <p style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary-green); margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Acción requerida
+                </p>
+                <p style="font-size:0.875rem; line-height:1.5;">${ACCION_REQUERIDA[d.tipoSolicitud] || 'Revisar solicitud y contactar al socio.'}</p>
+            </div>
 
-            let html = `<div class="detalle-grid">
-                <div class="detalle-item">
-                    <span class="detalle-label">RUT</span>
-                    <span class="detalle-valor">${d.rut || '—'}</span>
-                </div>
-                <div class="detalle-item">
-                    <span class="detalle-label">Tipo de solicitud</span>
-                    <span class="detalle-valor">${TIPOS[d.tipoSolicitud] || d.tipoSolicitud || '—'}</span>
-                </div>
-                <div class="detalle-item">
-                    <span class="detalle-label">Fecha de envío</span>
-                    <span class="detalle-valor">${formatFecha(d.fechaEnvio)}</span>
-                </div>
-                <div class="detalle-item">
-                    <span class="detalle-label">Estado</span>
-                    <span class="detalle-valor">${badgeEstado(d.estado)}</span>
-                </div>
-                <div class="detalle-item">
-                    <span class="detalle-label">Tipo de usuario</span>
-                    <span class="detalle-valor">${datos.tipoUsuario || '—'}</span>
-                </div>
-                <div class="detalle-item">
-                    <span class="detalle-label">Email</span>
-                    <span class="detalle-valor">${datos.emailValidacion || '—'}</span>
+            <div style="margin-bottom:1.25rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
+                <p style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.75rem;">Datos del solicitante</p>
+                <div class="detalle-grid">
+                    ${renderCampo('RUT', d.rut)}
+                    ${renderCampo('Tipo de solicitante', TIPO_USUARIO_LABEL[datos.tipoUsuario] || datos.tipoUsuario)}
+                    ${renderCampo('Email', datos.emailValidacion || datos.email)}
+                    ${renderCampo('Fecha de envío', formatFecha(d.fechaEnvio))}
+                    ${renderCampo('Tipo de solicitud', TIPOS[d.tipoSolicitud] || d.tipoSolicitud)}
+                    <div class="detalle-item">
+                        <span class="detalle-label">Estado</span>
+                        <span class="detalle-valor">${badgeEstado(d.estado)}</span>
+                    </div>
                 </div>
             </div>`;
 
-            // Campos adicionales si existen
-            const camposFiltrados = Object.entries(campos).filter(([k,v]) => v && v !== '');
-            if (camposFiltrados.length > 0) {
-                html += `<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
-                    <p style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.75rem;">Datos adicionales</p>
-                    <div class="detalle-grid">`;
-                camposFiltrados.forEach(([k, v]) => {
-                    const val = Array.isArray(v) ? v.join(', ') : v;
-                    html += `<div class="detalle-item">
-                        <span class="detalle-label">${k}</span>
-                        <span class="detalle-valor">${val}</span>
-                    </div>`;
+            // ── DATOS ESPECÍFICOS SEGÚN TIPO ──────────────────────────────────
+            let camposHtml = '';
+
+            // Datos personales / contacto / bancarios
+            const camposLabeled = Object.entries(campos).filter(([k,v]) => v && v !== '' && !(Array.isArray(v) && v.length === 0));
+            if (camposLabeled.length > 0) {
+                camposHtml += '<div class="detalle-grid">';
+                camposLabeled.forEach(([k, v]) => {
+                    camposHtml += renderCampo(CAMPO_LABELS[k] || k, v);
                 });
-                html += `</div></div>`;
+                camposHtml += '</div>';
+            }
+
+            // Exhibiciones
+            if (datos.exhibiciones && datos.exhibiciones.length > 0) {
+                camposHtml += `<div style="overflow-x:auto; margin-top:0.5rem;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+                        <thead><tr style="background:rgba(9,113,55,0.08);">
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Ámbito</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Obra</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">País</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Canal</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Inicio</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Término</th>
+                        </tr></thead>
+                        <tbody>${datos.exhibiciones.map(e => `<tr>
+                            <td style="padding:0.5rem;">${e.ambito || '—'}</td>
+                            <td style="padding:0.5rem;">${e.obra || '—'}</td>
+                            <td style="padding:0.5rem;">${e.pais || '—'}</td>
+                            <td style="padding:0.5rem;">${e.canal || '—'}</td>
+                            <td style="padding:0.5rem;">${e.fecha || '—'}</td>
+                            <td style="padding:0.5rem;">${e.fechaTermino || '—'}</td>
+                        </tr>`).join('')}</tbody>
+                    </table>
+                </div>`;
+            }
+
+            // Sociedades
+            if (datos.sociedades && datos.sociedades.length > 0) {
+                camposHtml += `<div style="overflow-x:auto; margin-top:0.5rem;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+                        <thead><tr style="background:rgba(9,113,55,0.08);">
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Sociedad</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">País</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Ámbito</th>
+                            <th style="padding:0.5rem; text-align:left; border-bottom:1px solid var(--border);">Clase</th>
+                        </tr></thead>
+                        <tbody>${datos.sociedades.map(s => `<tr>
+                            <td style="padding:0.5rem;">${s.sociedad || '—'}</td>
+                            <td style="padding:0.5rem;">${s.pais || '—'}</td>
+                            <td style="padding:0.5rem;">${s.ambito || '—'}</td>
+                            <td style="padding:0.5rem;">${s.clase || '—'}</td>
+                        </tr>`).join('')}</tbody>
+                    </table>
+                </div>`;
+            }
+
+            // Campos sueltos directos en datos (conflicto, certificados, etc.)
+            const camposDirectos = ['ambito','obra','descripcion','motivo','detalleSolicitud',
+                'ambitoAfiliacion','claseAfiliacion','ambitosObras','incluirRolObras','incluirPorcentajeObras',
+                'fechaInicio','fechaFin'];
+            const camposDirect = camposDirectos.filter(k => datos[k] && datos[k] !== '');
+            if (camposDirect.length > 0) {
+                camposHtml += '<div class="detalle-grid" style="margin-top:0.5rem;">';
+                camposDirect.forEach(k => { camposHtml += renderCampo(CAMPO_LABELS[k] || k, datos[k]); });
+                camposHtml += '</div>';
             }
 
             // Observaciones
-            if (datos.observaciones) {
-                html += `<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
-                    <p style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Observaciones</p>
-                    <p style="font-size:0.875rem; line-height:1.6;">${datos.observaciones}</p>
+            if (datos.observaciones || campos.observaciones) {
+                const obs = datos.observaciones || campos.observaciones;
+                camposHtml += `<div style="margin-top:0.75rem;">
+                    <span class="detalle-label">Observaciones</span>
+                    <p style="font-size:0.875rem; line-height:1.6; margin-top:0.25rem; background:rgba(0,0,0,0.03); padding:0.75rem; border-radius:0.5rem;">${obs}</p>
+                </div>`;
+            }
+
+            if (camposHtml) {
+                html += `<div>
+                    <p style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.75rem;">Datos de la solicitud</p>
+                    ${camposHtml}
                 </div>`;
             }
 
             content.innerHTML = html;
 
-            // Botones de estado
-            document.getElementById('btnEnProceso').style.display = d.estado === 'recibida' ? '' : 'none';
-            document.getElementById('btnResuelta').style.display  = d.estado !== 'resuelta' ? '' : 'none';
+            document.getElementById('btnEnProceso').style.display = d.estado === 'recibida'   ? '' : 'none';
+            document.getElementById('btnResuelta').style.display  = d.estado !== 'resuelta'   ? '' : 'none';
 
             document.getElementById('modalDetalle').classList.add('active');
         }
