@@ -233,18 +233,21 @@
             email: 'Email', telefono: 'Teléfono',
             pais: 'País', region: 'Región', comuna: 'Comuna',
             direccion: 'Dirección', deptoCasaOficina: 'Depto/Casa/Oficina',
+            estado: 'Estado', distrito: 'Distrito',
             'tipo-banco': 'Tipo de banco', banco: 'Banco',
             'numero-cuenta': 'N° de cuenta', 'tipo-cuenta': 'Tipo de cuenta',
-            'swift-iban': 'Swift / IBAN',
+            'swift-iban': 'Swift / IBAN', 'direccion-banco': 'Dirección del banco',
             ambito: 'Ámbito', clase: 'Clase',
-            motivo: 'Motivo', observaciones: 'Observaciones',
+            ambitos: 'Ámbitos seleccionados', clases: 'Clases seleccionadas',
+            motivo: 'Motivo de la solicitud', observaciones: 'Observaciones',
             detalleSolicitud: 'Detalle de la solicitud',
-            descripcion: 'Descripción', obra: 'Obra',
+            descripcion: 'Descripción del conflicto', obra: 'Obra en conflicto',
             ambitoAfiliacion: 'Incluir ámbito en certificado',
             claseAfiliacion: 'Incluir clase en certificado',
             ambitosObras: 'Ámbitos de obras',
             incluirRolObras: 'Incluir rol en certificado',
             incluirPorcentajeObras: 'Incluir porcentaje en certificado',
+            fechaInicio: 'Fecha inicio', fechaFin: 'Fecha fin',
         };
 
         const TIPO_USUARIO_LABEL = {
@@ -365,13 +368,33 @@
             }
 
             // Campos sueltos directos en datos (conflicto, certificados, etc.)
-            const camposDirectos = ['ambito','obra','descripcion','motivo','detalleSolicitud',
-                'ambitoAfiliacion','claseAfiliacion','ambitosObras','incluirRolObras','incluirPorcentajeObras',
-                'fechaInicio','fechaFin'];
-            const camposDirect = camposDirectos.filter(k => datos[k] && datos[k] !== '');
-            if (camposDirect.length > 0) {
+            const camposDirectos = [
+                'ambito', 'obra', 'descripcion', 'motivo', 'detalleSolicitud',
+                'ambitoAfiliacion', 'claseAfiliacion',
+                'ambitosObras', 'incluirRolObras', 'incluirPorcentajeObras',
+                'fechaInicio', 'fechaFin'
+            ];
+
+            // También buscar dentro de datos.campos los campos de ámbito/clase
+            const ambitosVal  = datos.ambitos  || datos.campos?.ambitos  || campos.ambitos;
+            const clasesVal   = datos.clases   || datos.campos?.clases   || campos.clases;
+
+            const camposDirect = camposDirectos.filter(k => {
+                const v = datos[k];
+                return v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0);
+            });
+
+            const BOOL_LABEL = { 'si': 'SÍ', 'no': 'NO' };
+            const BOOL_KEYS  = ['ambitoAfiliacion','claseAfiliacion','incluirRolObras','incluirPorcentajeObras'];
+
+            if (ambitosVal?.length || clasesVal?.length || camposDirect.length > 0) {
                 camposHtml += '<div class="detalle-grid" style="margin-top:0.5rem;">';
-                camposDirect.forEach(k => { camposHtml += renderCampo(CAMPO_LABELS[k] || k, datos[k]); });
+                if (ambitosVal?.length)  camposHtml += renderCampo('Ámbitos seleccionados',  Array.isArray(ambitosVal) ? ambitosVal.join(', ') : ambitosVal);
+                if (clasesVal?.length)   camposHtml += renderCampo('Clases seleccionadas',   Array.isArray(clasesVal)  ? clasesVal.join(', ')  : clasesVal);
+                camposDirect.forEach(k => {
+                    const val = BOOL_KEYS.includes(k) ? (BOOL_LABEL[datos[k]] || datos[k]) : datos[k];
+                    camposHtml += renderCampo(CAMPO_LABELS[k] || k, val);
+                });
                 camposHtml += '</div>';
             }
 
