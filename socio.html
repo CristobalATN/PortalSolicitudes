@@ -7,6 +7,112 @@
     <link rel="icon" href="./assets/solologo-1.png" type="image/png">
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        /* Formulario integrado con estilo del portal */
+        .form-section { display:none; }
+        .form-section.active { display:block; }
+
+        .bienvenida { text-align:center; padding:3rem 1rem; }
+        .bienvenida h2 { font-size:1.5rem; margin-bottom:0.75rem; }
+        .bienvenida p { color:var(--text-muted); max-width:500px; margin:0 auto 2rem; line-height:1.6; }
+
+        .request-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .request-type {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem; padding: 1.25rem;
+            cursor: pointer; transition: all var(--transition);
+        }
+        .request-type:hover {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(9,113,55,0.1);
+            transform: translateY(-2px);
+        }
+        .request-type h3 { font-size:0.95rem; margin-bottom:0.4rem; color:var(--text); }
+        .request-type p  { font-size:0.82rem; color:var(--text-muted); line-height:1.4; }
+        .request-type i  { color:var(--primary-green); font-size:1.25rem; margin-bottom:0.6rem; display:block; }
+
+        .subsection-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem; margin-bottom:1.5rem;
+        }
+        .subsection-type {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem; padding: 1rem;
+            cursor: pointer; transition: all var(--transition);
+        }
+        .subsection-type:hover { border-color:var(--primary-green); background:rgba(9,113,55,0.04); }
+        .subsection-type h3 { font-size:0.875rem; margin-bottom:0.3rem; }
+        .subsection-type p  { font-size:0.78rem; color:var(--text-muted); }
+
+        .form-step { display:none; }
+        .form-step.active { display:block; }
+
+        .step-header {
+            display:flex; align-items:center; gap:0.75rem;
+            margin-bottom:1.5rem; padding-bottom:1rem;
+            border-bottom:1px solid var(--border);
+        }
+        .step-header h2 { font-size:1.15rem; }
+        .step-header .btn-volver { flex-shrink:0; }
+
+        .info-note {
+            background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);
+            border-radius:0.5rem; padding:0.875rem 1rem;
+            font-size:0.85rem; line-height:1.5; margin-bottom:1.25rem; color:#92400e;
+        }
+
+        .checkbox-group { display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; }
+        .checkbox-item  { display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; }
+        .checkbox-item input[type="checkbox"] { width:16px; height:16px; accent-color:var(--primary-green); }
+
+        .radio-group { display:flex; gap:1.25rem; flex-wrap:wrap; }
+        .radio-option { display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; cursor:pointer; }
+        .radio-option input[type="radio"] { width:16px; height:16px; accent-color:var(--primary-green); }
+
+        select.form-control { cursor:pointer; }
+
+        textarea.form-control { resize:vertical; min-height:100px; }
+
+        .field-container { display:none; }
+        .field-container.visible { display:block; }
+
+        .nav-buttons { display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap; }
+
+        /* Tabla exhibiciones/sociedades */
+        .mini-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-bottom:1rem; }
+        .mini-table th { background:rgba(9,113,55,0.08); padding:0.5rem 0.75rem; text-align:left; font-weight:600; border-bottom:1px solid var(--border); }
+        .mini-table td { padding:0.5rem 0.75rem; border-bottom:1px solid rgba(87,86,86,0.07); }
+        .mini-table tr:last-child td { border-bottom:none; }
+
+        .sub-form {
+            background:rgba(9,113,55,0.04); border:1px solid rgba(9,113,55,0.2);
+            border-radius:0.75rem; padding:1.25rem; margin-bottom:1rem; display:none;
+        }
+        .sub-form.active { display:block; }
+
+        .exito-panel {
+            text-align:center; padding:3rem 1rem;
+        }
+        .exito-panel i { font-size:3rem; color:var(--primary-green); margin-bottom:1rem; display:block; }
+        .exito-panel h2 { font-size:1.4rem; margin-bottom:0.75rem; }
+        .exito-panel p { color:var(--text-muted); max-width:450px; margin:0 auto 2rem; line-height:1.6; }
+
+        .development-notice {
+            background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25);
+            border-radius:0.75rem; padding:1.25rem; text-align:center;
+            color:#1d4ed8; margin-bottom:1rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -26,70 +132,998 @@
     </header>
 
     <main>
-        <div class="socio-panel">
-            <img src="./assets/Logo-Fondo-Transparente@3x(1).png" alt="ATN" style="height:70px; opacity:0.85;">
-            <div>
-                <h2>Bienvenido/a, <span id="nombreSocio">—</span></h2>
-                <p>Desde aquí puedes enviar solicitudes a la Sociedad de Directores Audiovisuales, Guionistas y Dramaturgos de Chile.</p>
+        <div class="glass-panel">
+
+            <!-- BIENVENIDA -->
+            <div id="seccion-bienvenida" class="form-section active">
+                <div class="bienvenida">
+                    <img src="./assets/Logo-Fondo-Transparente@3x(1).png" alt="ATN" style="height:65px; margin-bottom:1.5rem; opacity:0.85;">
+                    <h2>Bienvenido/a, <span id="nombreSocio">—</span></h2>
+                    <p>Desde aquí puedes enviar solicitudes a la Sociedad de Directores Audiovisuales, Guionistas y Dramaturgos de Chile.</p>
+                    <button class="btn btn-primary" id="btnNuevaSolicitud" style="padding:0.875rem 2rem; font-size:1rem;">
+                        <i class="fa-solid fa-file-circle-plus"></i> Nueva solicitud
+                    </button>
+                </div>
             </div>
-            <button class="btn-nueva-solicitud" id="btnNuevaSolicitud">
-                <i class="fa-solid fa-file-circle-plus"></i>
-                Nueva solicitud
-            </button>
-            <p style="font-size:0.8rem; color:var(--text-muted);">
-                <i class="fa-solid fa-circle-info"></i>
-                Tu solicitud será recibida por el equipo ATN y procesada a la brevedad.
-            </p>
+
+            <!-- SELECCIÓN TIPO -->
+            <div id="seccion-tipo" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" id="volverBienvenida">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
+                    </button>
+                    <h2>¿Qué tipo de solicitud deseas realizar?</h2>
+                </div>
+                <div class="request-types">
+                    <div class="request-type" data-tipo="actualizacion">
+                        <i class="fa-solid fa-user-pen"></i>
+                        <h3>Actualización de información</h3>
+                        <p>Actualiza tus datos personales, de contacto, bancarios y otros.</p>
+                    </div>
+                    <div class="request-type" data-tipo="exhibicion">
+                        <i class="fa-solid fa-film"></i>
+                        <h3>Exhibición de obra en el extranjero</h3>
+                        <p>Infórmanos sobre exhibiciones de tu(s) obra(s) fuera del país.</p>
+                    </div>
+                    <div class="request-type" data-tipo="conflicto">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Conflicto en obra</h3>
+                        <p>Reporta algún conflicto relacionado con tu(s) obra(s) declarada(s).</p>
+                    </div>
+                    <div class="request-type" data-tipo="certificado">
+                        <i class="fa-solid fa-certificate"></i>
+                        <h3>Solicitud de certificado</h3>
+                        <p>Solicita certificados relacionados con tu afiliación a ATN.</p>
+                    </div>
+                    <div class="request-type" data-tipo="desafiliacion">
+                        <i class="fa-solid fa-user-minus"></i>
+                        <h3>Desafiliación</h3>
+                        <p>Inicia el proceso de desafiliación de ATN.</p>
+                    </div>
+                    <div class="request-type" data-tipo="otro">
+                        <i class="fa-solid fa-ellipsis"></i>
+                        <h3>Otra solicitud</h3>
+                        <p>Realiza otro tipo de solicitud no contemplada anteriormente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTUALIZACIÓN: SUBTIPO -->
+            <div id="seccion-actualizacion" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
+                    </button>
+                    <h2>¿Qué información deseas actualizar?</h2>
+                </div>
+                <div class="subsection-types">
+                    <div class="subsection-type" data-subtipo="datos-personales">
+                        <h3><i class="fa-solid fa-id-card" style="color:var(--primary-green); margin-right:0.4rem;"></i>Datos personales</h3>
+                        <p>Actualiza tu nombre, seudónimo o género.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="datos-contacto">
+                        <h3><i class="fa-solid fa-address-book" style="color:var(--primary-green); margin-right:0.4rem;"></i>Datos de contacto</h3>
+                        <p>Actualiza tu dirección, email o teléfono.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="datos-bancarios">
+                        <h3><i class="fa-solid fa-building-columns" style="color:var(--primary-green); margin-right:0.4rem;"></i>Datos bancarios</h3>
+                        <p>Registra tus datos bancarios actualizados.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="datos-autor">
+                        <h3><i class="fa-solid fa-pen-nib" style="color:var(--primary-green); margin-right:0.4rem;"></i>Datos de autor</h3>
+                        <p>Actualiza ámbito, clase u otras sociedades.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATOS AUTOR: SUBTIPO -->
+            <div id="seccion-datos-autor" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="actualizacion">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
+                    </button>
+                    <h2>Datos de autor</h2>
+                </div>
+                <div class="subsection-types">
+                    <div class="subsection-type" data-subtipo="ambito-clase">
+                        <h3>Ámbito o Clase</h3>
+                        <p>Actualiza el ámbito o clase de autor con el que estarás inscrito en ATN.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="sociedades">
+                        <h3>Otras sociedades</h3>
+                        <p>Actualiza información sobre otras sociedades de derechos de autor.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CERTIFICADO: SUBTIPO -->
+            <div id="seccion-certificado" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
+                    </button>
+                    <h2>¿Qué certificado necesitas?</h2>
+                </div>
+                <div class="subsection-types">
+                    <div class="subsection-type" data-subtipo="cert-afiliacion">
+                        <h3>Afiliación</h3>
+                        <p>Solicita un certificado de afiliación a ATN.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="cert-obras-declaradas">
+                        <h3>Obras declaradas</h3>
+                        <p>Solicita un certificado con el listado de tus obras declaradas.</p>
+                    </div>
+                    <div class="subsection-type" data-subtipo="cert-otro">
+                        <h3>Otro certificado</h3>
+                        <p>Si necesitas un certificado diferente, indícanos los detalles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULARIOS ESPECÍFICOS -->
+
+            <!-- Datos personales -->
+            <div id="form-datos-personales" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="actualizacion"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Actualización de Datos Personales</h2>
+                </div>
+                <p style="margin-bottom:1rem; color:var(--text-muted); font-size:0.875rem;">Selecciona los datos que deseas actualizar:</p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item"><input type="checkbox" id="chk-nombre" value="nombre"> <label for="chk-nombre">Nombre</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="chk-seudonimo" value="seudonimo"> <label for="chk-seudonimo">Seudónimo</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="chk-genero" value="genero"> <label for="chk-genero">Género</label></div>
+                </div>
+                <div id="field-nombre" class="form-group field-container">
+                    <label for="inp-nombre">Nombre completo:</label>
+                    <input type="text" id="inp-nombre" class="form-control" placeholder="Ingresa tu nombre completo actualizado">
+                </div>
+                <div id="field-seudonimo" class="form-group field-container">
+                    <label for="inp-seudonimo">Seudónimo:</label>
+                    <input type="text" id="inp-seudonimo" class="form-control" placeholder="Ingresa tu seudónimo actualizado">
+                </div>
+                <div id="field-genero" class="form-group field-container">
+                    <label for="inp-genero">Género:</label>
+                    <select id="inp-genero" class="form-control">
+                        <option value="">Selecciona una opción</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="no-binario">No binario</option>
+                        <option value="otro">Otro</option>
+                        <option value="prefiero-no-decir">Prefiero no decir</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="obs-personales">Detalle de la solicitud:</label>
+                    <textarea id="obs-personales" class="form-control" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-personales"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Datos contacto -->
+            <div id="form-datos-contacto" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="actualizacion"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Actualización de Datos de Contacto</h2>
+                </div>
+                <p style="margin-bottom:1rem; color:var(--text-muted); font-size:0.875rem;">Selecciona los datos que deseas actualizar:</p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item"><input type="checkbox" id="chk-direccion" value="direccion"> <label for="chk-direccion">Dirección</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="chk-email" value="email"> <label for="chk-email">Email</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="chk-telefono" value="telefono"> <label for="chk-telefono">Teléfono</label></div>
+                </div>
+                <div id="field-direccion" class="form-group field-container">
+                    <div class="form-group">
+                        <label for="inp-pais">País:</label>
+                        <select id="inp-pais" class="form-control"><option value="">Selecciona un país</option></select>
+                    </div>
+                    <div id="field-region" class="form-group field-container">
+                        <label for="inp-region">Región:</label>
+                        <select id="inp-region" class="form-control"><option value="">Selecciona una región</option></select>
+                    </div>
+                    <div id="field-comuna" class="form-group field-container">
+                        <label for="inp-comuna">Comuna:</label>
+                        <select id="inp-comuna" class="form-control"><option value="">Selecciona una comuna</option></select>
+                    </div>
+                    <div id="field-estado" class="form-group field-container">
+                        <label for="inp-estado">Estado:</label>
+                        <input type="text" id="inp-estado" class="form-control" placeholder="Estado o provincia">
+                    </div>
+                    <div class="form-group">
+                        <label for="inp-direccion">Dirección:</label>
+                        <input type="text" id="inp-direccion" class="form-control" placeholder="Calle y número">
+                    </div>
+                    <div class="form-group">
+                        <label for="inp-depto">Depto / Casa / Oficina:</label>
+                        <input type="text" id="inp-depto" class="form-control" placeholder="Ej: Depto. 703">
+                    </div>
+                </div>
+                <div id="field-email" class="form-group field-container">
+                    <label for="inp-email">Email:</label>
+                    <input type="email" id="inp-email" class="form-control" placeholder="tu@correo.cl">
+                </div>
+                <div id="field-telefono" class="form-group field-container">
+                    <label for="inp-telefono">Teléfono:</label>
+                    <input type="text" id="inp-telefono" class="form-control" placeholder="+56 9 12345678">
+                </div>
+                <div class="form-group">
+                    <label for="obs-contacto">Detalles de la solicitud:</label>
+                    <textarea id="obs-contacto" class="form-control" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-contacto"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Datos bancarios -->
+            <div id="form-datos-bancarios" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="actualizacion"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Actualización de Datos Bancarios</h2>
+                </div>
+                <div class="form-group">
+                    <label for="inp-tipo-banco">Tipo de banco:</label>
+                    <select id="inp-tipo-banco" class="form-control">
+                        <option value="">Selecciona una opción</option>
+                        <option value="nacional">Nacional</option>
+                        <option value="extranjero">Extranjero</option>
+                    </select>
+                </div>
+                <div id="field-pais-banco" class="form-group field-container">
+                    <label for="inp-pais-banco">País del banco:</label>
+                    <select id="inp-pais-banco" class="form-control"><option value="">Selecciona un país</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="inp-banco">Banco:</label>
+                    <input type="text" id="inp-banco" class="form-control" placeholder="Ej: Banco Estado, Santander...">
+                </div>
+                <div id="field-tipo-cuenta" class="form-group field-container">
+                    <label for="inp-tipo-cuenta">Tipo de cuenta:</label>
+                    <select id="inp-tipo-cuenta" class="form-control">
+                        <option value="">Selecciona una opción</option>
+                        <option value="corriente">Corriente</option>
+                        <option value="vista">Vista</option>
+                        <option value="ahorro">Ahorro</option>
+                        <option value="rut">RUT</option>
+                        <option value="chequera-electronica">Chequera electrónica</option>
+                    </select>
+                </div>
+                <div id="field-swift" class="form-group field-container">
+                    <label for="inp-swift">Swift / IBAN:</label>
+                    <input type="text" id="inp-swift" class="form-control" placeholder="Código Swift o IBAN">
+                </div>
+                <div class="form-group">
+                    <label for="inp-num-cuenta">N° de cuenta:</label>
+                    <input type="text" id="inp-num-cuenta" class="form-control" placeholder="Número de cuenta">
+                </div>
+                <div class="form-group">
+                    <label for="obs-bancarios">Detalles de la solicitud:</label>
+                    <textarea id="obs-bancarios" class="form-control" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-bancarios"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Ámbito o Clase -->
+            <div id="form-ambito-clase" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="datos-autor"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Actualización de Ámbito o Clase</h2>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600; margin-bottom:0.5rem; display:block;">Ámbito:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item"><input type="checkbox" id="chk-audiovisual" value="Audiovisual"> <label for="chk-audiovisual">Audiovisual</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="chk-dramatico" value="Dramático"> <label for="chk-dramatico">Dramático</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600; margin-bottom:0.5rem; display:block;">Clase:</label>
+                    <div class="checkbox-group" id="clase-options">
+                        <div class="checkbox-item clase-audiovisual" style="display:none;"><input type="checkbox" id="chk-director" value="Director"> <label for="chk-director">Director</label></div>
+                        <div class="checkbox-item clase-audiovisual" style="display:none;"><input type="checkbox" id="chk-guionista" value="Guionista"> <label for="chk-guionista">Guionista</label></div>
+                        <div class="checkbox-item clase-dramatico" style="display:none;"><input type="checkbox" id="chk-dramaturgo" value="Dramaturgo"> <label for="chk-dramaturgo">Dramaturgo</label></div>
+                        <div class="checkbox-item clase-dramatico" style="display:none;"><input type="checkbox" id="chk-coreografo" value="Coreógrafo"> <label for="chk-coreografo">Coreógrafo</label></div>
+                        <div class="checkbox-item clase-dramatico" style="display:none;"><input type="checkbox" id="chk-compositor" value="Compositor"> <label for="chk-compositor">Compositor</label></div>
+                        <div class="checkbox-item clase-dramatico" style="display:none;"><input type="checkbox" id="chk-traductor" value="Traductor"> <label for="chk-traductor">Traductor</label></div>
+                    </div>
+                    <p id="msg-selecciona-ambito" class="info-note" style="display:none;">Selecciona al menos un ámbito para ver las clases disponibles.</p>
+                </div>
+                <div class="form-group">
+                    <label for="obs-ambito">Detalles de la solicitud:</label>
+                    <textarea id="obs-ambito" class="form-control" rows="3" placeholder="Motivo de la solicitud..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-ambito"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Sociedades -->
+            <div id="form-sociedades" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="datos-autor"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Actualización de Otras Sociedades</h2>
+                </div>
+                <div class="table-responsive" style="margin-bottom:1rem;">
+                    <table class="mini-table" id="tabla-sociedades">
+                        <thead><tr><th>Sociedad</th><th>País</th><th>Ámbito</th><th>Clase</th><th></th></tr></thead>
+                        <tbody id="body-sociedades"><tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1rem;">Sin sociedades agregadas</td></tr></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-secondary" id="btnAgregarSociedad" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-plus"></i> Agregar sociedad
+                </button>
+                <div class="sub-form" id="sub-form-sociedad">
+                    <h4 style="margin-bottom:1rem;">Datos de la sociedad</h4>
+                    <div class="form-group">
+                        <label for="soc-pais">País:</label>
+                        <select id="soc-pais" class="form-control"><option value="">Selecciona un país</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="soc-nombre">Sociedad:</label>
+                        <select id="soc-nombre" class="form-control"><option value="">Selecciona una sociedad</option></select>
+                    </div>
+                    <div id="field-otra-sociedad" class="form-group field-container">
+                        <label for="soc-otra">Especifica sociedad:</label>
+                        <input type="text" id="soc-otra" class="form-control" placeholder="Nombre de la sociedad">
+                    </div>
+                    <div class="form-group">
+                        <label for="soc-ambito">Ámbito:</label>
+                        <select id="soc-ambito" class="form-control">
+                            <option value="">Selecciona un ámbito</option>
+                            <option value="Audiovisual">Audiovisual</option>
+                            <option value="Dramático">Dramático</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="soc-clase">Clase:</label>
+                        <select id="soc-clase" class="form-control"><option value="">Selecciona una clase</option></select>
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" id="btnGuardarSociedad"><i class="fa-solid fa-check"></i> Guardar</button>
+                        <button class="btn btn-secondary" id="btnCancelarSociedad">Cancelar</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="obs-sociedades">Detalles de la solicitud:</label>
+                    <textarea id="obs-sociedades" class="form-control" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-sociedades"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Exhibición obra extranjero -->
+            <div id="form-exhibicion" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Exhibición de obra en el extranjero</h2>
+                </div>
+                <div class="info-note">
+                    <strong>Importante:</strong> Las obras que registres deben haber sido declaradas previamente. Escribe el nombre tal como aparece en "Mis Obras" del Portal de Socios.
+                </div>
+                <div class="table-responsive" style="margin-bottom:1rem;">
+                    <table class="mini-table" id="tabla-exhibiciones">
+                        <thead><tr><th>Ámbito</th><th>Obra</th><th>País</th><th>Canal</th><th>Inicio</th><th>Término</th><th></th></tr></thead>
+                        <tbody id="body-exhibiciones"><tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:1rem;">Sin exhibiciones agregadas</td></tr></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-secondary" id="btnAgregarExhibicion" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-plus"></i> Agregar exhibición
+                </button>
+                <div class="sub-form" id="sub-form-exhibicion">
+                    <h4 style="margin-bottom:1rem;">Datos de la exhibición</h4>
+                    <div class="form-group">
+                        <label for="exh-ambito">Ámbito:</label>
+                        <select id="exh-ambito" class="form-control">
+                            <option value="">Selecciona un ámbito</option>
+                            <option value="Audiovisual">Audiovisual</option>
+                            <option value="Dramático">Dramático</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-obra">Obra:</label>
+                        <input type="text" id="exh-obra" class="form-control" placeholder="Nombre de la obra">
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-titulo">Título traducido (si aplica):</label>
+                        <input type="text" id="exh-titulo" class="form-control" placeholder="Título en el país de exhibición">
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-pais">País:</label>
+                        <select id="exh-pais" class="form-control"><option value="">Selecciona un país</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-canal">Canal / Plataforma / Sala:</label>
+                        <input type="text" id="exh-canal" class="form-control" placeholder="Ej: Netflix, Canal 6...">
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-fecha">Fecha inicio:</label>
+                        <input type="text" id="exh-fecha" class="form-control" placeholder="DD-MM-AAAA">
+                    </div>
+                    <div class="form-group">
+                        <label for="exh-fecha-termino">Fecha término:</label>
+                        <input type="text" id="exh-fecha-termino" class="form-control" placeholder="DD-MM-AAAA">
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="btn btn-primary" id="btnGuardarExhibicion"><i class="fa-solid fa-check"></i> Guardar</button>
+                        <button class="btn btn-secondary" id="btnCancelarExhibicion">Cancelar</button>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-exhibicion"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Conflicto en obra -->
+            <div id="form-conflicto" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Declaración de conflicto en obra</h2>
+                </div>
+                <div class="form-group">
+                    <label>Ámbito:</label>
+                    <div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="conf-ambito" id="conf-av" value="Audiovisual"> <label for="conf-av">Audiovisual</label></div>
+                        <div class="radio-option"><input type="radio" name="conf-ambito" id="conf-dr" value="Dramático"> <label for="conf-dr">Dramático</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="conf-obra">Obra en conflicto:</label>
+                    <input type="text" id="conf-obra" class="form-control" placeholder="Nombre de la obra">
+                </div>
+                <div class="form-group">
+                    <label for="conf-desc">Descripción del conflicto:</label>
+                    <textarea id="conf-desc" class="form-control" rows="5" placeholder="Describe detalladamente el conflicto..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-conflicto"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Certificado afiliación -->
+            <div id="form-cert-afiliacion" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="certificado"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Certificado de Afiliación</h2>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">¿Deseas incluir en el certificado los derechos que ATN administra en tu representación?</p>
+                <div class="form-group">
+                    <label>Ámbito:</label>
+                    <div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="cert-ambito" id="cert-a-si" value="si"> <label for="cert-a-si">Sí</label></div>
+                        <div class="radio-option"><input type="radio" name="cert-ambito" id="cert-a-no" value="no" checked> <label for="cert-a-no">No</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Clase:</label>
+                    <div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="cert-clase" id="cert-c-si" value="si"> <label for="cert-c-si">Sí</label></div>
+                        <div class="radio-option"><input type="radio" name="cert-clase" id="cert-c-no" value="no" checked> <label for="cert-c-no">No</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cert-motivo">Motivo de la solicitud:</label>
+                    <textarea id="cert-motivo" class="form-control" rows="3" placeholder="Motivo por el cual solicita este certificado..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-cert-afiliacion"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Certificado obras declaradas -->
+            <div id="form-cert-obras" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="certificado"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Certificado de Obras Declaradas</h2>
+                </div>
+                <div class="form-group">
+                    <label>Ámbito de obras a incluir:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item"><input type="checkbox" id="co-audiovisual" value="audiovisual"> <label for="co-audiovisual">Audiovisual</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="co-dramatico" value="dramatico"> <label for="co-dramatico">Dramático</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>¿Incluir rol declarado para cada obra?</label>
+                    <div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="co-rol" id="co-rol-si" value="si"> <label for="co-rol-si">Sí</label></div>
+                        <div class="radio-option"><input type="radio" name="co-rol" id="co-rol-no" value="no"> <label for="co-rol-no">No</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>¿Incluir porcentaje de participación?</label>
+                    <div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="co-pct" id="co-pct-si" value="si"> <label for="co-pct-si">Sí</label></div>
+                        <div class="radio-option"><input type="radio" name="co-pct" id="co-pct-no" value="no"> <label for="co-pct-no">No</label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="co-motivo">Motivo de la solicitud:</label>
+                    <textarea id="co-motivo" class="form-control" rows="3" placeholder="Motivo por el cual solicita este certificado..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-cert-obras"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Otro certificado -->
+            <div id="form-cert-otro" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="certificado"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Otro Certificado</h2>
+                </div>
+                <div class="form-group">
+                    <label for="otro-cert-detalle">Detalles del certificado solicitado:</label>
+                    <textarea id="otro-cert-detalle" class="form-control" rows="4" placeholder="Describe el certificado que necesitas..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="otro-cert-motivo">Motivo de la solicitud:</label>
+                    <textarea id="otro-cert-motivo" class="form-control" rows="3" placeholder="Motivo de la solicitud..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-cert-otro"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Desafiliación -->
+            <div id="form-desafiliacion" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Solicitud de Desafiliación</h2>
+                </div>
+                <div class="info-note">
+                    Por favor, detalla el motivo de tu solicitud. Una vez enviada, toda la gestión de firma de documentos relacionados se realizará a través del correo electrónico registrado.
+                </div>
+                <div class="form-group">
+                    <label for="desaf-motivo">Motivo de la solicitud:</label>
+                    <textarea id="desaf-motivo" class="form-control" rows="5" placeholder="Indica el motivo por el cual solicitas la desafiliación de ATN..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-desafiliacion"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- Otra solicitud -->
+            <div id="form-otro" class="form-section">
+                <div class="step-header">
+                    <button class="btn btn-secondary btn-volver" data-volver="tipo"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <h2>Otra solicitud</h2>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">
+                    También puedes contactarnos directamente por <a href="https://api.whatsapp.com/send?phone=56979753559" target="_blank" style="color:var(--primary-green);">WhatsApp</a>.
+                </p>
+                <div class="form-group">
+                    <label for="otro-detalle">Detalle de la solicitud:</label>
+                    <textarea id="otro-detalle" class="form-control" rows="5" placeholder="Describe detalladamente tu solicitud..."></textarea>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" id="submit-otro"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+                </div>
+            </div>
+
+            <!-- ÉXITO -->
+            <div id="seccion-exito" class="form-section">
+                <div class="exito-panel">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h2>¡Solicitud enviada con éxito!</h2>
+                    <p>Tu solicitud ha sido recibida. Nuestro equipo la procesará y se pondrá en contacto contigo a la brevedad.</p>
+                    <button class="btn btn-primary" id="btnNuevaSolicitudExito">
+                        <i class="fa-solid fa-plus"></i> Nueva solicitud
+                    </button>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <footer>&copy; 2026 ATN Chile — Portal de Solicitudes</footer>
 
-    <!-- Modal formulario -->
-    <div class="modal-overlay" id="modalFormulario">
-        <div class="modal" style="max-width:900px; width:98%; max-height:92vh; padding:0; overflow:hidden; display:flex; flex-direction:column;">
-            <div class="modal-header" style="padding:1.25rem 1.5rem; flex-shrink:0;">
-                <h3><i class="fa-solid fa-file-circle-plus" style="color:var(--primary-green);"></i> Nueva solicitud</h3>
-                <button class="btn-close" id="closeFormulario"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div style="flex:1; overflow-y:auto;">
-                <iframe id="iframeFormulario" src="formulario.html" style="width:100%; border:none; min-height:600px;" onload="ajustarIframe(this)"></iframe>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { auth, db } from "./firebase.js";
         import { verifySession, logout } from "./auth.js";
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
+        // ── SESSION ──────────────────────────────────────────────────────────
         document.getElementById('logoutBtn').addEventListener('click', logout);
 
+        let currentUser = null;
         document.addEventListener('sessionReady', (e) => {
-            const user = e.detail;
-            document.getElementById('userNombre').textContent = user.email;
-            document.getElementById('nombreSocio').textContent = user.nombre || user.email;
+            currentUser = e.detail;
+            document.getElementById('userNombre').textContent = currentUser.email;
+            document.getElementById('nombreSocio').textContent = currentUser.nombre || currentUser.email;
         });
-
         verifySession('socio');
 
-        document.getElementById('btnNuevaSolicitud').addEventListener('click', () => {
-            document.getElementById('modalFormulario').classList.add('active');
-        });
-
-        document.getElementById('closeFormulario').addEventListener('click', () => {
-            document.getElementById('modalFormulario').classList.remove('active');
-        });
-
-        // Escuchar mensaje del iframe cuando se envía la solicitud
-        window.addEventListener('message', (e) => {
-            if (e.data === 'solicitud-enviada') {
-                document.getElementById('modalFormulario').classList.remove('active');
-            }
-        });
-
-        window.ajustarIframe = function(iframe) {
-            iframe.style.minHeight = '600px';
+        // ── NAVEGACIÓN ───────────────────────────────────────────────────────
+        const secciones = {
+            'bienvenida':       document.getElementById('seccion-bienvenida'),
+            'tipo':             document.getElementById('seccion-tipo'),
+            'actualizacion':    document.getElementById('seccion-actualizacion'),
+            'datos-autor':      document.getElementById('seccion-datos-autor'),
+            'certificado':      document.getElementById('seccion-certificado'),
+            'datos-personales': document.getElementById('form-datos-personales'),
+            'datos-contacto':   document.getElementById('form-datos-contacto'),
+            'datos-bancarios':  document.getElementById('form-datos-bancarios'),
+            'ambito-clase':     document.getElementById('form-ambito-clase'),
+            'sociedades':       document.getElementById('form-sociedades'),
+            'exhibicion':       document.getElementById('form-exhibicion'),
+            'conflicto':        document.getElementById('form-conflicto'),
+            'cert-afiliacion':  document.getElementById('form-cert-afiliacion'),
+            'cert-obras':       document.getElementById('form-cert-obras'),
+            'cert-otro':        document.getElementById('form-cert-otro'),
+            'desafiliacion':    document.getElementById('form-desafiliacion'),
+            'otro':             document.getElementById('form-otro'),
+            'exito':            document.getElementById('seccion-exito'),
         };
+
+        function irA(seccion) {
+            Object.values(secciones).forEach(s => s.classList.remove('active'));
+            if (secciones[seccion]) secciones[seccion].classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Botón nueva solicitud
+        document.getElementById('btnNuevaSolicitud').addEventListener('click', () => irA('tipo'));
+        document.getElementById('btnNuevaSolicitudExito').addEventListener('click', () => irA('tipo'));
+        document.getElementById('volverBienvenida').addEventListener('click', () => irA('bienvenida'));
+
+        // Cards de tipo principal
+        document.querySelectorAll('.request-type').forEach(card => {
+            card.addEventListener('click', () => {
+                const tipo = card.dataset.tipo;
+                if (tipo === 'actualizacion') irA('actualizacion');
+                else if (tipo === 'certificado') irA('certificado');
+                else irA(tipo);
+            });
+        });
+
+        // Cards de subtipo
+        document.querySelectorAll('.subsection-type').forEach(card => {
+            card.addEventListener('click', () => {
+                const sub = card.dataset.subtipo;
+                irA(sub);
+            });
+        });
+
+        // Botones volver
+        document.querySelectorAll('.btn-volver[data-volver]').forEach(btn => {
+            btn.addEventListener('click', () => irA(btn.dataset.volver));
+        });
+
+        // ── DATOS PERSONALES: checkboxes ─────────────────────────────────────
+        ['nombre','seudonimo','genero'].forEach(campo => {
+            document.getElementById(`chk-${campo}`).addEventListener('change', function() {
+                document.getElementById(`field-${campo}`)[this.checked ? 'classList' : 'classList'][this.checked ? 'add' : 'remove']('visible');
+            });
+        });
+
+        // ── DATOS CONTACTO: checkboxes ───────────────────────────────────────
+        ['direccion','email','telefono'].forEach(campo => {
+            document.getElementById(`chk-${campo}`).addEventListener('change', function() {
+                document.getElementById(`field-${campo}`)[this.checked ? 'classList' : 'classList'][this.checked ? 'add' : 'remove']('visible');
+            });
+        });
+
+        // ── ÁMBITO/CLASE: mostrar clases según ámbito ────────────────────────
+        ['chk-audiovisual','chk-dramatico'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                const hasAv = document.getElementById('chk-audiovisual').checked;
+                const hasDr = document.getElementById('chk-dramatico').checked;
+                document.querySelectorAll('.clase-audiovisual').forEach(el => el.style.display = hasAv ? 'flex' : 'none');
+                document.querySelectorAll('.clase-dramatico').forEach(el => el.style.display = hasDr ? 'flex' : 'none');
+                document.getElementById('msg-selecciona-ambito').style.display = (!hasAv && !hasDr) ? 'block' : 'none';
+            });
+        });
+
+        // ── DATOS BANCARIOS: mostrar campos según tipo ───────────────────────
+        document.getElementById('inp-tipo-banco').addEventListener('change', function() {
+            const esExtranjero = this.value === 'extranjero';
+            document.getElementById('field-pais-banco').classList[esExtranjero ? 'add' : 'remove']('visible');
+            document.getElementById('field-swift').classList[esExtranjero ? 'add' : 'remove']('visible');
+            document.getElementById('field-tipo-cuenta').classList[!esExtranjero && this.value ? 'add' : 'remove']('visible');
+        });
+
+        // ── CARGA DE PAÍSES ──────────────────────────────────────────────────
+        async function cargarPaises(selectId) {
+            try {
+                const r = await fetch('./assets/paises.json');
+                const paises = await r.json();
+                const sel = document.getElementById(selectId);
+                paises.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = p.nombre || p;
+                    sel.appendChild(opt);
+                });
+            } catch(e) { console.error('Error cargando países:', e); }
+        }
+
+        async function cargarRegiones() {
+            try {
+                const r = await fetch('./assets/regionesycomunas.json');
+                const data = await r.json();
+                const selReg = document.getElementById('inp-region');
+                const selCom = document.getElementById('inp-comuna');
+
+                const regiones = data.regiones || data;
+                regiones.forEach(reg => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = reg.region;
+                    selReg.appendChild(opt);
+                });
+
+                selReg.addEventListener('change', () => {
+                    selCom.innerHTML = '<option value="">Selecciona una comuna</option>';
+                    const reg = regiones.find(r => r.region === selReg.value);
+                    if (reg) reg.comunas.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = opt.textContent = c;
+                        selCom.appendChild(opt);
+                    });
+                });
+            } catch(e) { console.error('Error cargando regiones:', e); }
+        }
+
+        async function cargarSociedades() {
+            try {
+                const r = await fetch('./assets/sociedades.json');
+                const data = await r.json();
+                const sel = document.getElementById('soc-nombre');
+                data.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = s.nombre || s;
+                    sel.appendChild(opt);
+                });
+                // Detectar "Otra"
+                sel.addEventListener('change', () => {
+                    const esOtra = sel.value.toLowerCase().includes('otra') || sel.value.toLowerCase() === 'otro';
+                    document.getElementById('field-otra-sociedad').classList[esOtra ? 'add' : 'remove']('visible');
+                });
+            } catch(e) { console.error('Error cargando sociedades:', e); }
+        }
+
+        // País contacto → mostrar región o estado
+        document.getElementById('inp-pais').addEventListener('change', function() {
+            const esChile = this.value === 'Chile';
+            document.getElementById('field-region').classList[esChile ? 'add' : 'remove']('visible');
+            document.getElementById('field-comuna').classList[esChile ? 'add' : 'remove']('visible');
+            document.getElementById('field-estado').classList[!esChile && this.value ? 'add' : 'remove']('visible');
+        });
+
+        // Cargar datos al entrar a cada sección
+        const datosYaCargados = {};
+        function cargarDatosSiNecesario(seccion) {
+            if (datosYaCargados[seccion]) return;
+            datosYaCargados[seccion] = true;
+            if (seccion === 'datos-contacto') { cargarPaises('inp-pais'); cargarRegiones(); }
+            if (seccion === 'datos-bancarios') { cargarPaises('inp-pais-banco'); }
+            if (seccion === 'exhibicion')     { cargarPaises('exh-pais'); }
+            if (seccion === 'sociedades')     { cargarPaises('soc-pais'); cargarSociedades(); }
+        }
+
+        document.querySelectorAll('.subsection-type, .request-type').forEach(card => {
+            card.addEventListener('click', () => cargarDatosSiNecesario(card.dataset.subtipo || card.dataset.tipo));
+        });
+
+        // ── EXHIBICIONES: agregar/quitar ─────────────────────────────────────
+        let exhibiciones = [];
+        document.getElementById('btnAgregarExhibicion').addEventListener('click', () => {
+            document.getElementById('sub-form-exhibicion').classList.add('active');
+        });
+        document.getElementById('btnCancelarExhibicion').addEventListener('click', () => {
+            document.getElementById('sub-form-exhibicion').classList.remove('active');
+        });
+        document.getElementById('btnGuardarExhibicion').addEventListener('click', () => {
+            const exh = {
+                ambito: document.getElementById('exh-ambito').value,
+                obra:   document.getElementById('exh-obra').value,
+                tituloTraducido: document.getElementById('exh-titulo').value,
+                pais:   document.getElementById('exh-pais').value,
+                canal:  document.getElementById('exh-canal').value,
+                fecha:  document.getElementById('exh-fecha').value,
+                fechaTermino: document.getElementById('exh-fecha-termino').value,
+            };
+            if (!exh.obra || !exh.pais || !exh.canal) { alert('Completa los campos obligatorios.'); return; }
+            exhibiciones.push(exh);
+            renderTablaExhibiciones();
+            document.getElementById('sub-form-exhibicion').classList.remove('active');
+            ['exh-ambito','exh-obra','exh-titulo','exh-pais','exh-canal','exh-fecha','exh-fecha-termino'].forEach(id => document.getElementById(id).value = '');
+        });
+
+        function renderTablaExhibiciones() {
+            const tbody = document.getElementById('body-exhibiciones');
+            if (exhibiciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:1rem;">Sin exhibiciones agregadas</td></tr>';
+                return;
+            }
+            tbody.innerHTML = exhibiciones.map((e, i) => `
+                <tr>
+                    <td>${e.ambito}</td><td>${e.obra}</td><td>${e.pais}</td>
+                    <td>${e.canal}</td><td>${e.fecha}</td><td>${e.fechaTermino || '—'}</td>
+                    <td><button class="btn btn-danger" style="font-size:0.75rem; padding:0.2rem 0.5rem;" onclick="window.quitarExhibicion(${i})"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`).join('');
+        }
+        window.quitarExhibicion = (i) => { exhibiciones.splice(i,1); renderTablaExhibiciones(); };
+
+        // ── SOCIEDADES: agregar/quitar ───────────────────────────────────────
+        let sociedades = [];
+        document.getElementById('btnAgregarSociedad').addEventListener('click', () => {
+            document.getElementById('sub-form-sociedad').classList.add('active');
+        });
+        document.getElementById('btnCancelarSociedad').addEventListener('click', () => {
+            document.getElementById('sub-form-sociedad').classList.remove('active');
+        });
+        document.getElementById('soc-ambito').addEventListener('change', function() {
+            const sel = document.getElementById('soc-clase');
+            sel.innerHTML = '<option value="">Selecciona una clase</option>';
+            const clases = this.value === 'Audiovisual'
+                ? ['Director','Guionista']
+                : ['Dramaturgo','Coreógrafo','Compositor','Traductor'];
+            clases.forEach(c => { const opt = document.createElement('option'); opt.value = opt.textContent = c; sel.appendChild(opt); });
+        });
+        document.getElementById('btnGuardarSociedad').addEventListener('click', () => {
+            const soc = {
+                pais:     document.getElementById('soc-pais').value,
+                sociedad: document.getElementById('soc-nombre').value === 'Otra' ? document.getElementById('soc-otra').value : document.getElementById('soc-nombre').value,
+                ambito:   document.getElementById('soc-ambito').value,
+                clase:    document.getElementById('soc-clase').value,
+            };
+            if (!soc.sociedad || !soc.ambito || !soc.clase) { alert('Completa los campos obligatorios.'); return; }
+            sociedades.push(soc);
+            renderTablaSociedades();
+            document.getElementById('sub-form-sociedad').classList.remove('active');
+        });
+
+        function renderTablaSociedades() {
+            const tbody = document.getElementById('body-sociedades');
+            if (sociedades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1rem;">Sin sociedades agregadas</td></tr>';
+                return;
+            }
+            tbody.innerHTML = sociedades.map((s, i) => `
+                <tr>
+                    <td>${s.sociedad}</td><td>${s.pais}</td><td>${s.ambito}</td><td>${s.clase}</td>
+                    <td><button class="btn btn-danger" style="font-size:0.75rem; padding:0.2rem 0.5rem;" onclick="window.quitarSociedad(${i})"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`).join('');
+        }
+        window.quitarSociedad = (i) => { sociedades.splice(i,1); renderTablaSociedades(); };
+
+        // ── ENVÍO A FIREBASE + POWER AUTOMATE ────────────────────────────────
+        const PA_URL = 'https://default0c13096209bc40fc8db89d043ff625.1a.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/971fb86a29204a7aaaa83de432406db9/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=09izjqz5nu4vqRe_PDvYq9iyx2r2WWSUrZqhwWTARSc';
+
+        async function enviarSolicitud(tipoSolicitud, datos) {
+            const payload = {
+                tipoSolicitud,
+                fechaEnvio: new Date().toISOString(),
+                datos: {
+                    rut: currentUser?.rut || '',
+                    tipoUsuario: 'socio-vigente',
+                    emailValidacion: currentUser?.email || '',
+                    ...datos
+                }
+            };
+
+            try {
+                // Guardar en Firestore
+                await addDoc(collection(db, 'solicitudes'), {
+                    ...payload,
+                    estado: 'recibida',
+                    fechaEnvio: serverTimestamp(),
+                    uid: currentUser?.uid || null
+                });
+
+                // Enviar a Power Automate (sin bloquear)
+                fetch(PA_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(e => console.error('Power Automate error:', e));
+
+                irA('exito');
+            } catch(err) {
+                alert('Error al enviar la solicitud. Intenta nuevamente.');
+                console.error(err);
+            }
+        }
+
+        function v(id) { return document.getElementById(id)?.value || ''; }
+        function checked(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
+        function checkboxValues(name) { return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.value); }
+
+        // Datos personales
+        document.getElementById('submit-personales').addEventListener('click', () => {
+            const campos = {};
+            if (document.getElementById('chk-nombre').checked)    campos.nombre    = v('inp-nombre');
+            if (document.getElementById('chk-seudonimo').checked) campos.seudonimo = v('inp-seudonimo');
+            if (document.getElementById('chk-genero').checked)    campos.genero    = v('inp-genero');
+            enviarSolicitud('actualizacion-datos-personales', { campos, observaciones: v('obs-personales') });
+        });
+
+        // Datos contacto
+        document.getElementById('submit-contacto').addEventListener('click', () => {
+            const campos = {};
+            if (document.getElementById('chk-email').checked)    campos.email    = v('inp-email');
+            if (document.getElementById('chk-telefono').checked) campos.telefono = v('inp-telefono');
+            if (document.getElementById('chk-direccion').checked) {
+                campos.pais = v('inp-pais'); campos.region = v('inp-region');
+                campos.comuna = v('inp-comuna'); campos.direccion = v('inp-direccion');
+                campos.deptoCasaOficina = v('inp-depto');
+            }
+            enviarSolicitud('actualizacion-datos-contacto', { campos, observaciones: v('obs-contacto') });
+        });
+
+        // Datos bancarios
+        document.getElementById('submit-bancarios').addEventListener('click', () => {
+            enviarSolicitud('actualizacion-datos-bancarios', { campos: {
+                'tipo-banco':   v('inp-tipo-banco'),
+                banco:          v('inp-banco'),
+                'numero-cuenta':v('inp-num-cuenta'),
+                'tipo-cuenta':  v('inp-tipo-cuenta'),
+                'swift-iban':   v('inp-swift'),
+            }, observaciones: v('obs-bancarios') });
+        });
+
+        // Ámbito/Clase
+        document.getElementById('submit-ambito').addEventListener('click', () => {
+            enviarSolicitud('actualizacion-datos-autor-ambito', {
+                ambitos: [...document.querySelectorAll('#form-ambito-clase input[type="checkbox"][id^="chk-audiovisual"], #form-ambito-clase input[type="checkbox"][id^="chk-dramatico"]')].filter(el => el.checked).map(el => el.value),
+                clases:  [...document.querySelectorAll('.clase-audiovisual input:checked, .clase-dramatico input:checked')].map(el => el.value),
+                observaciones: v('obs-ambito')
+            });
+        });
+
+        // Sociedades
+        document.getElementById('submit-sociedades').addEventListener('click', () => {
+            enviarSolicitud('actualizacion-datos-autor-sociedades', { sociedades, observaciones: v('obs-sociedades') });
+        });
+
+        // Exhibición
+        document.getElementById('submit-exhibicion').addEventListener('click', () => {
+            if (exhibiciones.length === 0) { alert('Agrega al menos una exhibición.'); return; }
+            enviarSolicitud('exhibicion-obra-extranjero', { exhibiciones });
+        });
+
+        // Conflicto
+        document.getElementById('submit-conflicto').addEventListener('click', () => {
+            enviarSolicitud('conflicto-obra', { ambito: checked('conf-ambito'), obra: v('conf-obra'), descripcion: v('conf-desc') });
+        });
+
+        // Cert afiliación
+        document.getElementById('submit-cert-afiliacion').addEventListener('click', () => {
+            enviarSolicitud('certificado-afiliacion', {
+                ambitoAfiliacion: checked('cert-ambito'),
+                claseAfiliacion:  checked('cert-clase'),
+                motivo: v('cert-motivo')
+            });
+        });
+
+        // Cert obras declaradas
+        document.getElementById('submit-cert-obras').addEventListener('click', () => {
+            enviarSolicitud('certificado-obras-declaradas', {
+                ambitosObras:           [...document.querySelectorAll('#form-cert-obras input[type="checkbox"]:checked')].map(el => el.value),
+                incluirRolObras:        checked('co-rol'),
+                incluirPorcentajeObras: checked('co-pct'),
+                motivo: v('co-motivo')
+            });
+        });
+
+        // Cert otro
+        document.getElementById('submit-cert-otro').addEventListener('click', () => {
+            enviarSolicitud('otro-certificado', { detalleSolicitud: v('otro-cert-detalle'), motivo: v('otro-cert-motivo') });
+        });
+
+        // Desafiliación
+        document.getElementById('submit-desafiliacion').addEventListener('click', () => {
+            enviarSolicitud('desafiliacion', { motivo: v('desaf-motivo') });
+        });
+
+        // Otro
+        document.getElementById('submit-otro').addEventListener('click', () => {
+            enviarSolicitud('otro', { detalleSolicitud: v('otro-detalle') });
+        });
     </script>
 </body>
 </html>
