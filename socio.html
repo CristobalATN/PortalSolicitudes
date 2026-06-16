@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Solicitudes — ATN</title>
+    <link rel="icon" href="./assets/solologo-1.png" type="image/png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="./assets/solologo-1.png" alt="ATN" style="height:32px;">
+                Portal de Solicitudes
+                <span class="role-tag socio">Socio</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <span id="userNombre" style="font-size:0.8rem; color:var(--text-muted);"></span>
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="socio-panel">
+            <img src="./assets/Logo-Fondo-Transparente@3x(1).png" alt="ATN" style="height:70px; opacity:0.85;">
+            <div>
+                <h2>Bienvenido/a, <span id="nombreSocio">—</span></h2>
+                <p>Desde aquí puedes enviar solicitudes a la Sociedad de Directores Audiovisuales, Guionistas y Dramaturgos de Chile.</p>
+            </div>
+            <button class="btn-nueva-solicitud" id="btnNuevaSolicitud">
+                <i class="fa-solid fa-file-circle-plus"></i>
+                Nueva solicitud
+            </button>
+            <p style="font-size:0.8rem; color:var(--text-muted);">
+                <i class="fa-solid fa-circle-info"></i>
+                Tu solicitud será recibida por el equipo ATN y procesada a la brevedad.
+            </p>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 ATN Chile — Portal de Solicitudes</footer>
+
+    <!-- Modal formulario -->
+    <div class="modal-overlay" id="modalFormulario">
+        <div class="modal" style="max-width:900px; width:98%; max-height:92vh; padding:0; overflow:hidden; display:flex; flex-direction:column;">
+            <div class="modal-header" style="padding:1.25rem 1.5rem; flex-shrink:0;">
+                <h3><i class="fa-solid fa-file-circle-plus" style="color:var(--primary-green);"></i> Nueva solicitud</h3>
+                <button class="btn-close" id="closeFormulario"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="flex:1; overflow-y:auto;">
+                <iframe id="iframeFormulario" src="formulario.html" style="width:100%; border:none; min-height:600px;" onload="ajustarIframe(this)"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { verifySession, logout } from "./auth.js";
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        document.addEventListener('sessionReady', (e) => {
+            const user = e.detail;
+            document.getElementById('userNombre').textContent = user.email;
+            document.getElementById('nombreSocio').textContent = user.nombre || user.email;
+        });
+
+        verifySession('socio');
+
+        document.getElementById('btnNuevaSolicitud').addEventListener('click', () => {
+            document.getElementById('modalFormulario').classList.add('active');
+        });
+
+        document.getElementById('closeFormulario').addEventListener('click', () => {
+            document.getElementById('modalFormulario').classList.remove('active');
+        });
+
+        // Escuchar mensaje del iframe cuando se envía la solicitud
+        window.addEventListener('message', (e) => {
+            if (e.data === 'solicitud-enviada') {
+                document.getElementById('modalFormulario').classList.remove('active');
+            }
+        });
+
+        window.ajustarIframe = function(iframe) {
+            iframe.style.minHeight = '600px';
+        };
+    </script>
+</body>
+</html>

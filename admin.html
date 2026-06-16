@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Portal de Solicitudes ATN</title>
+    <link rel="icon" href="./assets/solologo-1.png" type="image/png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="./assets/solologo-1.png" alt="ATN" style="height:32px;">
+                Portal de Solicitudes
+                <span class="role-tag">Admin</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <span id="userEmail" style="font-size:0.8rem; color:var(--text-muted);"></span>
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- STATS -->
+        <div class="stats-grid" style="margin-bottom:1.5rem;">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #f59e0b;">
+                <div class="stat-value" id="statRecibida" style="color:#b45309;">—</div>
+                <div class="stat-label">Recibidas</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #3b82f6;">
+                <div class="stat-value" id="statEnProceso" style="color:#1d4ed8;">—</div>
+                <div class="stat-label">En proceso</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid #10b981;">
+                <div class="stat-value" id="statResuelta" style="color:#059669;">—</div>
+                <div class="stat-label">Resueltas</div>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+                <div class="filters-bar" style="margin:0;">
+                    <button class="filter-chip active" data-filter="todos">Todos</button>
+                    <button class="filter-chip" data-filter="recibida"><i class="fa-solid fa-inbox" style="font-size:0.7rem;"></i> Recibida</button>
+                    <button class="filter-chip" data-filter="en-proceso"><i class="fa-solid fa-spinner" style="font-size:0.7rem;"></i> En proceso</button>
+                    <button class="filter-chip" data-filter="resuelta"><i class="fa-solid fa-check-circle" style="font-size:0.7rem;"></i> Resuelta</button>
+                </div>
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por RUT o tipo...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>RUT</th>
+                            <th>Tipo de solicitud</th>
+                            <th>Estado</th>
+                            <th style="text-align:right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="5" style="text-align:center; padding:2.5rem;"><div class="loader"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 ATN Chile — Portal de Solicitudes</footer>
+
+    <!-- MODAL DETALLE -->
+    <div class="modal-overlay" id="modalDetalle">
+        <div class="modal" style="max-width:650px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-lines" style="color:var(--primary-green);"></i> Detalle de solicitud</h3>
+                <button class="btn-close" id="closeDetalle"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="detalleContent"></div>
+            <div style="display:flex; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary" id="btnEnProceso" style="color:#1d4ed8;">
+                    <i class="fa-solid fa-spinner"></i> Marcar en proceso
+                </button>
+                <button class="btn btn-success" id="btnResuelta">
+                    <i class="fa-solid fa-check-circle"></i> Marcar resuelta
+                </button>
+                <button class="btn btn-secondary" id="btnVolver" style="margin-left:auto;">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { verifySession, logout } from "./auth.js";
+        import {
+            collection, onSnapshot, doc, updateDoc,
+            query, orderBy, Timestamp
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        let allDocs     = [];
+        let filtroActivo = 'todos';
+        let searchTerm  = '';
+        let solicitudActual = null;
+
+        const TIPOS = {
+            'actualizacion-datos-personales':  'Actualización datos personales',
+            'actualizacion-datos-contacto':    'Actualización datos contacto',
+            'actualizacion-datos-bancarios':   'Actualización datos bancarios',
+            'actualizacion-datos-autor-ambito':'Actualización ámbito autor',
+            'actualizacion-datos-autor-sociedades': 'Actualización sociedades',
+            'exhibicion-obra-extranjero':      'Exhibición obra extranjero',
+            'conflicto-obra':                  'Conflicto de obra',
+            'certificado-afiliacion':          'Certificado afiliación',
+            'certificado-derechos-recibidos':  'Certificado derechos recibidos',
+            'certificado-obras-declaradas':    'Certificado obras declaradas',
+            'otro-certificado':                'Otro certificado',
+            'desafiliacion':                   'Desafiliación',
+            'otro':                            'Otro',
+        };
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        document.addEventListener('sessionReady', (e) => {
+            document.getElementById('userEmail').textContent = e.detail.email;
+        });
+
+        verifySession('admin');
+
+        // Listener en tiempo real
+        const q = query(collection(db, 'solicitudes'), orderBy('fechaEnvio', 'desc'));
+        onSnapshot(q, (snap) => {
+            allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            actualizarStats();
+            renderTabla();
+        });
+
+        // Filtros
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filtroActivo = btn.dataset.filter;
+                renderTabla();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value.toLowerCase().trim();
+            renderTabla();
+        });
+
+        function filtrarDocs() {
+            return allDocs.filter(d => {
+                if (filtroActivo !== 'todos' && d.estado !== filtroActivo) return false;
+                if (searchTerm) {
+                    const rut   = (d.rut || '').toLowerCase();
+                    const tipo  = (d.tipoSolicitud || '').toLowerCase();
+                    if (!rut.includes(searchTerm) && !tipo.includes(searchTerm)) return false;
+                }
+                return true;
+            });
+        }
+
+        function actualizarStats() {
+            document.getElementById('statTotal').textContent     = allDocs.length;
+            document.getElementById('statRecibida').textContent  = allDocs.filter(d => d.estado === 'recibida').length;
+            document.getElementById('statEnProceso').textContent = allDocs.filter(d => d.estado === 'en-proceso').length;
+            document.getElementById('statResuelta').textContent  = allDocs.filter(d => d.estado === 'resuelta').length;
+        }
+
+        function badgeEstado(estado) {
+            const map = {
+                'recibida':   `<span class="badge badge-recibida"><i class="fa-solid fa-inbox"></i> Recibida</span>`,
+                'en-proceso': `<span class="badge badge-en-proceso"><i class="fa-solid fa-spinner"></i> En proceso</span>`,
+                'resuelta':   `<span class="badge badge-resuelta"><i class="fa-solid fa-check-circle"></i> Resuelta</span>`,
+            };
+            return map[estado] || `<span class="badge">${estado}</span>`;
+        }
+
+        function formatFecha(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            return d.toLocaleDateString('es-CL', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
+        function renderTabla() {
+            const tbody = document.getElementById('tableBody');
+            const docs  = filtrarDocs();
+
+            if (docs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No hay solicitudes que coincidan.</p></div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            docs.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.innerHTML = `
+                    <td style="color:var(--text-muted); font-size:0.82rem;">${formatFecha(d.fechaEnvio)}</td>
+                    <td><strong>${d.rut || '—'}</strong></td>
+                    <td><span class="tipo-badge">${TIPOS[d.tipoSolicitud] || d.tipoSolicitud || '—'}</span></td>
+                    <td>${badgeEstado(d.estado)}</td>
+                    <td style="text-align:right;">
+                        <button class="btn btn-secondary btn-ver" style="font-size:0.8rem;">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </button>
+                    </td>
+                `;
+                tr.querySelector('.btn-ver').addEventListener('click', () => abrirDetalle(d));
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirDetalle(d) {
+            solicitudActual = d;
+            const content = document.getElementById('detalleContent');
+
+            // Construir campos del detalle
+            const datos = d.datos || {};
+            const campos = datos.campos || {};
+
+            let html = `<div class="detalle-grid">
+                <div class="detalle-item">
+                    <span class="detalle-label">RUT</span>
+                    <span class="detalle-valor">${d.rut || '—'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tipo de solicitud</span>
+                    <span class="detalle-valor">${TIPOS[d.tipoSolicitud] || d.tipoSolicitud || '—'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Fecha de envío</span>
+                    <span class="detalle-valor">${formatFecha(d.fechaEnvio)}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Estado</span>
+                    <span class="detalle-valor">${badgeEstado(d.estado)}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tipo de usuario</span>
+                    <span class="detalle-valor">${datos.tipoUsuario || '—'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Email</span>
+                    <span class="detalle-valor">${datos.emailValidacion || '—'}</span>
+                </div>
+            </div>`;
+
+            // Campos adicionales si existen
+            const camposFiltrados = Object.entries(campos).filter(([k,v]) => v && v !== '');
+            if (camposFiltrados.length > 0) {
+                html += `<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+                    <p style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.75rem;">Datos adicionales</p>
+                    <div class="detalle-grid">`;
+                camposFiltrados.forEach(([k, v]) => {
+                    const val = Array.isArray(v) ? v.join(', ') : v;
+                    html += `<div class="detalle-item">
+                        <span class="detalle-label">${k}</span>
+                        <span class="detalle-valor">${val}</span>
+                    </div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            // Observaciones
+            if (datos.observaciones) {
+                html += `<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+                    <p style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Observaciones</p>
+                    <p style="font-size:0.875rem; line-height:1.6;">${datos.observaciones}</p>
+                </div>`;
+            }
+
+            content.innerHTML = html;
+
+            // Botones de estado
+            document.getElementById('btnEnProceso').style.display = d.estado === 'recibida' ? '' : 'none';
+            document.getElementById('btnResuelta').style.display  = d.estado !== 'resuelta' ? '' : 'none';
+
+            document.getElementById('modalDetalle').classList.add('active');
+        }
+
+        document.getElementById('closeDetalle').addEventListener('click', () => {
+            document.getElementById('modalDetalle').classList.remove('active');
+        });
+        document.getElementById('btnVolver').addEventListener('click', () => {
+            document.getElementById('modalDetalle').classList.remove('active');
+        });
+
+        document.getElementById('btnEnProceso').addEventListener('click', async () => {
+            if (!solicitudActual) return;
+            await updateDoc(doc(db, 'solicitudes', solicitudActual.id), { estado: 'en-proceso' });
+            document.getElementById('modalDetalle').classList.remove('active');
+        });
+
+        document.getElementById('btnResuelta').addEventListener('click', async () => {
+            if (!solicitudActual) return;
+            await updateDoc(doc(db, 'solicitudes', solicitudActual.id), { estado: 'resuelta' });
+            document.getElementById('modalDetalle').classList.remove('active');
+        });
+    </script>
+</body>
+</html>
