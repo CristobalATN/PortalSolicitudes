@@ -834,8 +834,10 @@
                 const paises = await r.json();
                 const sel = document.getElementById(selectId);
                 paises.forEach(p => {
+                    const nombre = p['Nombre del país'] || p.nombre || p.name || Object.values(p)[0] || '';
+                    if (!nombre) return;
                     const opt = document.createElement('option');
-                    opt.value = opt.textContent = p.nombre || p;
+                    opt.value = opt.textContent = nombre;
                     sel.appendChild(opt);
                 });
             } catch(e) { console.error('Error cargando países:', e); }
