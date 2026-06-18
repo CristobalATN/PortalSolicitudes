@@ -55,9 +55,12 @@
                     <button class="filter-chip" data-filter="en-proceso"><i class="fa-solid fa-spinner" style="font-size:0.7rem;"></i> En proceso</button>
                     <button class="filter-chip" data-filter="resuelta"><i class="fa-solid fa-check-circle" style="font-size:0.7rem;"></i> Resuelta</button>
                 </div>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <button id="btnSortFecha" class="btn btn-secondary" title="Ordenar por fecha"><i class="fa-solid fa-arrow-down-wide-short"></i> Más reciente</button>
                 <div class="search-wrapper">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="searchInput" class="form-control" placeholder="Buscar por RUT o tipo...">
+                </div>
                 </div>
             </div>
 
@@ -97,7 +100,10 @@
                 <button class="btn btn-success" id="btnResuelta">
                     <i class="fa-solid fa-check-circle"></i> Marcar resuelta
                 </button>
-                <button class="btn btn-secondary" id="btnVolver" style="margin-left:auto;">
+                <button class="btn btn-danger" id="btnEliminar" style="margin-left:auto;">
+                    <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+                <button class="btn btn-secondary" id="btnVolver">
                     Cerrar
                 </button>
             </div>
@@ -108,13 +114,14 @@
         import { auth, db } from "./firebase.js";
         import { verifySession, logout } from "./auth.js";
         import {
-            collection, onSnapshot, doc, updateDoc,
+            collection, onSnapshot, doc, updateDoc, deleteDoc,
             query, orderBy, Timestamp
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         let allDocs     = [];
         let filtroActivo = 'todos';
         let searchTerm  = '';
+        let sortOrder   = 'desc'; // desc = más reciente primero
         let solicitudActual = null;
 
         const TIPOS = {
@@ -165,7 +172,7 @@
         });
 
         function filtrarDocs() {
-            return allDocs.filter(d => {
+            const filtered = allDocs.filter(d => {
                 if (filtroActivo !== 'todos' && d.estado !== filtroActivo) return false;
                 if (searchTerm) {
                     const rut   = (d.rut || '').toLowerCase();
@@ -173,6 +180,11 @@
                     if (!rut.includes(searchTerm) && !tipo.includes(searchTerm)) return false;
                 }
                 return true;
+            });
+            return filtered.sort((a, b) => {
+                const ta = a.fechaEnvio?.toDate ? a.fechaEnvio.toDate().getTime() : new Date(a.fechaEnvio||0).getTime();
+                const tb = b.fechaEnvio?.toDate ? b.fechaEnvio.toDate().getTime() : new Date(b.fechaEnvio||0).getTime();
+                return sortOrder === 'desc' ? tb - ta : ta - tb;
             });
         }
 
@@ -427,6 +439,28 @@
         });
         document.getElementById('btnVolver').addEventListener('click', () => {
             document.getElementById('modalDetalle').classList.remove('active');
+        });
+
+        document.getElementById('btnEliminar').addEventListener('click', async () => {
+            if (!solicitudActual) return;
+            if (!confirm('¿Estás seguro de que deseas eliminar esta solicitud? Esta acción no se puede deshacer.')) return;
+            try {
+                await deleteDoc(doc(db, 'solicitudes', solicitudActual.id));
+                document.getElementById('modalDetalle').classList.remove('active');
+            } catch(err) {
+                alert('Error al eliminar la solicitud.');
+                console.error(err);
+            }
+        });
+
+        // Botón ordenar por fecha
+        document.getElementById('btnSortFecha').addEventListener('click', () => {
+            sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+            const btn = document.getElementById('btnSortFecha');
+            btn.innerHTML = sortOrder === 'desc'
+                ? '<i class="fa-solid fa-arrow-down-wide-short"></i> Más reciente'
+                : '<i class="fa-solid fa-arrow-up-wide-short"></i> Más antiguo';
+            renderTabla();
         });
 
         document.getElementById('btnEnProceso').addEventListener('click', async () => {
