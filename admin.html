@@ -93,12 +93,15 @@
                 <button class="btn-close" id="closeDetalle"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="detalleContent"></div>
-            <div style="display:flex; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap;">
-                <button class="btn btn-secondary" id="btnEnProceso" style="color:#1d4ed8;">
-                    <i class="fa-solid fa-spinner"></i> Marcar en proceso
-                </button>
-                <button class="btn btn-success" id="btnResuelta">
-                    <i class="fa-solid fa-check-circle"></i> Marcar resuelta
+            <div style="display:flex; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap; align-items:center;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Estado:</label>
+                <select id="selectEstadoModal" class="form-control" style="width:auto; font-size:0.875rem;">
+                    <option value="recibida">📥 Recibida</option>
+                    <option value="en-proceso">⏳ En proceso</option>
+                    <option value="resuelta">✅ Resuelta</option>
+                </select>
+                <button class="btn btn-primary" id="btnGuardarEstado">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
                 </button>
                 <button class="btn btn-danger" id="btnEliminar" style="margin-left:auto;">
                     <i class="fa-solid fa-trash"></i> Eliminar
@@ -227,7 +230,13 @@
                     <td style="color:var(--text-muted); font-size:0.82rem;">${formatFecha(d.fechaEnvio)}</td>
                     <td><strong>${d.rut || '—'}</strong></td>
                     <td><span class="tipo-badge">${TIPOS[d.tipoSolicitud] || d.tipoSolicitud || '—'}</span></td>
-                    <td>${badgeEstado(d.estado)}</td>
+                    <td>
+                        <select class="estado-select form-control" data-id="${d.id}" style="font-size:0.8rem; width:auto; padding:0.3rem 0.6rem; border-radius:0.4rem; cursor:pointer;">
+                            <option value="recibida" ${d.estado==='recibida'?'selected':''}>📥 Recibida</option>
+                            <option value="en-proceso" ${d.estado==='en-proceso'?'selected':''}>⏳ En proceso</option>
+                            <option value="resuelta" ${d.estado==='resuelta'?'selected':''}>✅ Resuelta</option>
+                        </select>
+                    </td>
                     <td style="text-align:right;">
                         <button class="btn btn-secondary btn-ver" style="font-size:0.8rem;">
                             <i class="fa-solid fa-eye"></i> Ver
@@ -235,6 +244,15 @@
                     </td>
                 `;
                 tr.querySelector('.btn-ver').addEventListener('click', () => abrirDetalle(d));
+                tr.querySelector('.estado-select').addEventListener('change', async function() {
+                    const nuevoEstado = this.value;
+                    try {
+                        await updateDoc(doc(db, 'solicitudes', d.id), { estado: nuevoEstado });
+                    } catch(err) {
+                        alert('Error al actualizar el estado.');
+                        this.value = d.estado; // revertir
+                    }
+                });
                 tbody.appendChild(tr);
             });
         }
@@ -428,8 +446,7 @@
 
             content.innerHTML = html;
 
-            document.getElementById('btnEnProceso').style.display = d.estado === 'recibida'   ? '' : 'none';
-            document.getElementById('btnResuelta').style.display  = d.estado !== 'resuelta'   ? '' : 'none';
+            document.getElementById('selectEstadoModal').value = d.estado || 'recibida';
 
             document.getElementById('modalDetalle').classList.add('active');
         }
@@ -463,16 +480,15 @@
             renderTabla();
         });
 
-        document.getElementById('btnEnProceso').addEventListener('click', async () => {
+        document.getElementById('btnGuardarEstado').addEventListener('click', async () => {
             if (!solicitudActual) return;
-            await updateDoc(doc(db, 'solicitudes', solicitudActual.id), { estado: 'en-proceso' });
-            document.getElementById('modalDetalle').classList.remove('active');
-        });
-
-        document.getElementById('btnResuelta').addEventListener('click', async () => {
-            if (!solicitudActual) return;
-            await updateDoc(doc(db, 'solicitudes', solicitudActual.id), { estado: 'resuelta' });
-            document.getElementById('modalDetalle').classList.remove('active');
+            const nuevoEstado = document.getElementById('selectEstadoModal').value;
+            try {
+                await updateDoc(doc(db, 'solicitudes', solicitudActual.id), { estado: nuevoEstado });
+                document.getElementById('modalDetalle').classList.remove('active');
+            } catch(err) {
+                alert('Error al guardar el estado.');
+            }
         });
     </script>
 </body>
